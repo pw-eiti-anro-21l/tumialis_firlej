@@ -20,6 +20,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+                'zolwik = ZAD1.publisher_member_function_zolw:main',
         ],
     },
 )
