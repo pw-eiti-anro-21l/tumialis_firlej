@@ -13,14 +13,14 @@ setup(
     ],
     install_requires=['setuptools'],
     zip_safe=True,
-    maintainer='madvx',
-    maintainer_email='madvx@todo.todo',
-    description='TODO: Package description',
-    license='TODO: License declaration',
+    maintainer='tumialis123',
+    maintainer_email='01149442@pw.edu.pl',
+    description='Python parameter tutorial',
+    license='Apache License 2.0',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-                'zolwik = ZAD1.publisher_member_function_zolw:main',
+                'zolwik = ZAD1.controls:main',
         ],
     },
 )
