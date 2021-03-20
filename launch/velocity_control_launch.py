@@ -8,7 +8,7 @@ def generate_launch_description():
             package='turtlesim',
             namespace='',
             executable='turtlesim_node',
-            name='turtle1'
+            name='turtlesim'
         ),
         Node(
             package='zadanie1',
