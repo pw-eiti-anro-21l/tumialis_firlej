@@ -9,7 +9,7 @@ class VelocityPub(Node):
     def __init__(self):
         # creating node with publisher
         super().__init__('velocityNode')
-        self.publisher_ = self.create_publisher(Twist, '/turtle1/turtle1/cmd_vel', 10)
+        self.publisher_ = self.create_publisher(Twist, '/turtle1/cmd_vel', 10)
 
         # setting up parameters and variables
         self.declare_parameter('goLeft', 'g')
