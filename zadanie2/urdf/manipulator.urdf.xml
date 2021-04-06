@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 <robot name="robot">
+=======
+<robot name="manipulator">
+>>>>>>> 5bb2ce3f6eb1c82aeebee7299ce19beb5bc76337
 
     <link name="baza">
             <visual>

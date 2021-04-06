@@ -9,6 +9,9 @@ from launch_ros.actions import Node
 def generate_launch_description():
     use_sim_time = LaunchConfiguration('use_sim_time', default='false')
     urdf_file_name = 'manipulator.urdf.xml'
+    poz1 = 0.0
+    poz2 = 0.0
+    poz3 = 0.0
 
     print("urdf_file_name : {}".format(urdf_file_name))
 
@@ -32,5 +35,6 @@ def generate_launch_description():
             package='zadanie2',
             executable='state_publisher',
             name='state_publisher',
+            parameters=[{'poz1': poz1}, {'poz2': poz2}, {'poz3': poz3}],
             output='screen'),
     ])
