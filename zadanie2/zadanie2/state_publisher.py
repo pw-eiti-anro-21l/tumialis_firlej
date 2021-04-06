@@ -22,45 +22,58 @@ class StatePublisher(Node):
         self.get_logger().info("{0} started".format(self.nodeName))
 
         degree = pi / 180.0
-        loop_rate = self.create_rate(30)
+        self.loop_rate = self.create_rate(30)
 
-        # robot state
-        poz1 = 0.0
-        poz2 = 0.0
-        poz3 = 0.0
+        # robot state parameters
+        self.declare_parameter('poz1', 0.0)
+        self.declare_parameter('poz2', 0.0)
+        self.declare_parameter('poz3', 0.0)
 
-        kat = 0.1
+        self.poz1 = self.get_parameter('poz1').get_parameter_value().double_value
+        self.poz2 = self.get_parameter('poz2').get_parameter_value().double_value
+        self.poz3 = self.get_parameter('poz3').get_parameter_value().double_value
 
         # message declarations
-        odom_trans = TransformStamped()
-        odom_trans.header.frame_id = 'odom'
-        odom_trans.child_frame_id = 'baza'
-        joint_state = JointState()
+        self.odom_trans = TransformStamped()
+        self.odom_trans.header.frame_id = 'odom'
+        self.odom_trans.child_frame_id = 'baza'
+        self.joint_state = JointState()
+
+        self.timer = self.create_timer(0.1, self.update_state)
+
+    def update_state(self):
 
         try:
-            while rclpy.ok():
-                rclpy.spin_once(self)
+            # update joint_state
+            now = self.get_clock().now()
+            self.joint_state.header.stamp = now.to_msg()
+            self.joint_state.name = ["baza_do_ramie1", "ramie1_do_ramie2", "ramie2_do_ramie3"]
+            self.joint_state.position = [self.poz1, self.poz2, self.poz3]
 
-                # update joint_state
-                now = self.get_clock().now()
-                joint_state.header.stamp = now.to_msg()
-                joint_state.name = ["baza_do_ramie1", "ramie1_do_ramie2", "ramie1_do_ramie2"]
-                joint_state.position = [poz1, poz2, poz3]
+            self.odom_trans.header.stamp = now.to_msg()
 
-                odom_trans.header.stamp = now.to_msg()
+            # send the joint state and transform
+            self.joint_pub.publish(self.joint_state)
+            self.broadcaster.sendTransform(self.odom_trans)
 
-                # send the joint state and transform
-                self.joint_pub.publish(joint_state)
-                self.broadcaster.sendTransform(odom_trans)
+            # This will adjust as needed per iteration
+            self.loop_rate.sleep()
 
-                # Create new robot state
-                poz1 += 0.1
-                poz2 += kat
-                if poz2 > 3.14:
-                    kat *= -1
+            # change params
+            if self.poz1 < self.get_parameter('poz1').get_parameter_value().double_value:
+                self.poz1 += 0.01
+            if self.poz1 >= self.get_parameter('poz1').get_parameter_value().double_value:
+                self.poz1 -= 0.01
 
-                # This will adjust as needed per iteration
-                loop_rate.sleep()
+            if self.poz2 < self.get_parameter('poz2').get_parameter_value().double_value:
+                self.poz2 += 0.01
+            if self.poz2 >= self.get_parameter('poz2').get_parameter_value().double_value:
+                self.poz2 -= 0.01
+
+            if self.poz3 < self.get_parameter('poz3').get_parameter_value().double_value:
+                self.poz3 += 0.01
+            if self.poz3 >= self.get_parameter('poz3').get_parameter_value().double_value:
+                self.poz3 -= 0.01
 
         except KeyboardInterrupt:
             pass
@@ -76,6 +89,7 @@ def euler_to_quaternion(roll, pitch, yaw):
 
 def main():
     node = StatePublisher()
+    rclpy.spin(node)
 
 
 if __name__ == '__main__':

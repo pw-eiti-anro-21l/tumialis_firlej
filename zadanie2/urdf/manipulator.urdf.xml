@@ -1,7 +1,5 @@
 <robot name="manipulator">
 
-
-
     <link name="baza">
             <visual>
                 <geometry>
@@ -66,7 +64,9 @@
             </visual>
     </link>
 
-    <joint name="ramie2_do_ramie3" type="fixed">
+    <joint name="ramie2_do_ramie3" type="prismatic">
+        <axis xyz="0 0 1"/>
+        <limit upper="5.0" lower="-5.0" effort="10" velocity="10" />
         <parent link="ramie2"/>
         <child link="ramie3"/>
         <origin xyz="0.5 0 -0.5" rpy="0 3.14 0"/>
