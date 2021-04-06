@@ -1,0 +1,4 @@
+alfa a d theta laczenie nazwa
+0 0 1 0 1 ramie1
+0 0.5 0 0 1 ramie2
+3.14 0.5 0.5 0 2 ramie3
