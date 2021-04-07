@@ -46,8 +46,8 @@ def z_dh_do_urdf(dane):
 def stworz_plik():
     dane_z_pliku = copy.deepcopy(z_pliku("dh.txt"))
     poprzednia_nazwa = 'baza'
-    f = open("manipulator.urdf.xml", "w")
-    f.write('<robot name="robot">\n\n')
+    f = open("mani.urdf.xml", "w")
+    f.write('<robot name="manipulator">\n\n')
     f.write('    <link name="baza">\n')
     f.write('            <visual>\n')
     f.write('                <geometry>\n')

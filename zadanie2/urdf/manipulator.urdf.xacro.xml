@@ -1,0 +1,79 @@
+<?xml version="1.0" ?>
+
+<robot name="manipulator" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+    <xacro:property name="macierzDH" value="${load_yaml('macierzDH.yaml')}"/>
+    <xacro:property name="params" value="${load_yaml('parametryURDF.yaml')}"/>
+
+    <link name="baza">
+            <visual>
+                <geometry>
+                    <cylinder length="${params['baza']['length']}" radius="${params['baza']['length']}"/>
+                </geometry>
+                <origin rpy="0 0 0" xyz="0 0 ${0.5 * params['baza']['length']}"/>
+                <material name="gray">
+                    <color rgba="0.5 0.5 0.5 1"/>
+                </material>
+            </visual>
+    </link>
+
+    <link name="ramie1">
+            <visual>
+                <geometry>
+                    <box size="${params['ramie1']['x']} ${params['ramie1']['y']} ${params['ramie1']['z']}"/>
+                </geometry>
+                <origin rpy="0 0 0" xyz="${0.5 * params['ramie1']['x']} 0 ${0.5 * params['ramie1']['z']}"/>
+                <material name="gray">
+                    <color rgba="0.5 0.5 0.5 1"/>
+                </material>
+            </visual>
+    </link>
+
+    <joint name="baza_do_ramie1" type="revolute">
+        <axis xyz="0 0 1"/>
+        <limit upper="6" lower="-6" effort="10" velocity="2" />
+        <parent link="baza"/>
+        <child link="ramie1"/>
+        <origin xyz="${macierzDH['ramie1']['a']} ${macierzDH['ramie1']['d'] * sin(macierzDH['ramie1']['alfa']) * (-1)} ${macierzDH['ramie1']['d'] * cos(macierzDH['ramie1']['alfa'])}" rpy="${(macierzDH['ramie1']['alfa'] * pi) / 3.14 } 0 ${(macierzDH['ramie1']['theta'] * pi) / 3.14 }"/>
+    </joint>
+
+    <link name="ramie2">
+            <visual>
+                <geometry>
+                    <box size="${params['ramie2']['x']} ${params['ramie2']['y']} ${params['ramie2']['z']}"/>
+                </geometry>
+                <origin rpy="0 0 0" xyz="${0.5 * params['ramie2']['x']} 0 ${0.5 * params['ramie2']['z']}"/>
+                <material name="gray">
+                    <color rgba="0.5 0.5 0.5 1"/>
+                </material>
+            </visual>
+    </link>
+
+    <joint name="ramie1_do_ramie2" type="revolute">
+        <axis xyz="0 0 1"/>
+        <limit upper="6" lower="-6" effort="10" velocity="2" />
+        <parent link="ramie1"/>
+        <child link="ramie2"/>
+        <origin xyz="${macierzDH['ramie2']['a']} ${macierzDH['ramie2']['d'] * sin(macierzDH['ramie2']['alfa']) * (-1)} ${macierzDH['ramie2']['d'] * cos(macierzDH['ramie2']['alfa'])}" rpy="${(macierzDH['ramie2']['alfa'] * pi) / 3.14 } 0 ${(macierzDH['ramie2']['theta'] * pi) / 3.14 }"/>
+    </joint>
+
+    <link name="ramie3">
+        <visual>
+            <geometry>
+                    <box size="${params['ramie3']['x']} ${params['ramie3']['y']} ${params['ramie3']['z']}"/>
+                </geometry>
+                <origin rpy="0 0 0" xyz="${0.5 * params['ramie3']['x']} 0 ${-0.5 * params['ramie3']['z']}"/>
+            <material name="gray">
+                <color rgba="0.5 0.5 0.5 1"/>
+            </material>
+        </visual>
+    </link>
+
+    <joint name="ramie2_do_ramie3" type="prismatic">
+        <axis xyz="0 0 1"/>
+        <limit upper="6" lower="-6" effort="10" velocity="2" />
+        <parent link="ramie2"/>
+        <child link="ramie3"/>
+        <origin xyz="${macierzDH['ramie3']['a']} ${macierzDH['ramie3']['d'] * sin(macierzDH['ramie3']['alfa']) * (-1)} ${macierzDH['ramie3']['d'] * cos(macierzDH['ramie3']['alfa'])}" rpy="${(macierzDH['ramie3']['alfa'] * pi) / 3.14 } 0 ${(macierzDH['ramie3']['theta'] * pi) / 3.14 }"/>
+    </joint>
+</robot>

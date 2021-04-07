@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-<robot name="robot">
-=======
 <robot name="manipulator">
->>>>>>> 5bb2ce3f6eb1c82aeebee7299ce19beb5bc76337
 
     <link name="baza">
             <visual>
@@ -17,63 +13,62 @@
     </link>
 
     <link name="ramie1">
-        <visual>
-            <geometry>
-                <box size="0.5 0.05 0.05"/>
-            </geometry>
-            <origin xyz="0.25 0 0.025" rpy="0 0 0"/>
-            <material name="gray">
-                <color rgba="0.5 0.5 0.5 1"/>
-            </material>
-        </visual>
+            <visual>
+                <geometry>
+                    <box size="0.8 0.05 0.05"/>
+                </geometry>
+                <origin rpy="0 0 0" xyz="0.4 0 0.025"/>
+                <material name="gray">
+                    <color rgba="0.5 0.5 0.5 1"/>
+                </material>
+            </visual>
     </link>
 
-    <joint name="joint_1" type="revolute">
+    <joint name="baza_do_ramie1" type="revolute">
+        <axis xyz="0 0 1"/>
+        <limit upper="3" lower="-3" effort="10" velocity="2" />
         <parent link="baza"/>
         <child link="ramie1"/>
-        <axis xyz="0 0 1"/>
-        <limit upper="3.14" lower="-3.14" effort="10" velocity="10" />
-        <origin xyz="0.0 -0.0 1.0" rpy="0.0 0 0.0"/>
+        <origin rpy="0 0 0" xyz="0 0 1"/>
     </joint>
 
     <link name="ramie2">
-        <visual>
-            <geometry>
-                <box size="0.5 0.05 0.05"/>
-            </geometry>
-            <origin xyz="0.25 0 0.025" rpy="0 0 0"/>
-            <material name="gray">
-                <color rgba="0.5 0.5 0.5 1"/>
-            </material>
-        </visual>
+            <visual>
+                <geometry>
+                    <box size="0.5 0.05 0.05"/>
+                </geometry>
+                <origin rpy="0 0 0" xyz="0.25 0 -0.05"/>
+                <material name="gray">
+                    <color rgba="0.5 0.5 0.5 1"/>
+                </material>
+            </visual>
     </link>
 
-    <joint name="joint_2" type="revolute">
-        <parent link="ramie1"/>
-        <child link="ramie2"/>
-        <axis xyz="0 0 1"/>
-        <limit upper="3.14" lower="-3.14" effort="10" velocity="10" />
-        <origin xyz="0.5 -0.0 0.0" rpy="0.0 0 0.0"/>
-    </joint>
-
-    <link name="ramie3">
-        <visual>
-            <geometry>
-                <box size="0.05 0.05 0.5"/>
-            </geometry>
-            <origin xyz="0.025 0 -0.25" rpy="0 0 0"/>
-            <material name="gray">
-                <color rgba="0.5 0.5 0.5 1"/>
-            </material>
-        </visual>
-    </link>
-
-    <joint name="joint_3" type="prismatic">
-        <parent link="ramie2"/>
-        <child link="ramie3"/>
+    <joint name="ramie1_do_ramie2" type="revolute">
         <axis xyz="0 0 1"/>
         <limit upper="5.0" lower="-5.0" effort="10" velocity="10" />
-        <origin xyz="0.5 -0.0 -0.5" rpy="3.14159 0 0.0"/>
+        <parent link="ramie1"/>
+        <child link="ramie2"/>
+        <origin rpy="0 0 0" xyz="0.8 0 0"/>
     </joint>
 
+        <link name="ramie3">
+            <visual>
+                <geometry>
+                    <box size="0.05 0.05 0.5"/>
+                </geometry>
+                <origin rpy="0 3.14 0" xyz="-0.025 0 -0.23"/>
+                <material name="gray">
+                    <color rgba="0.5 0.5 0.5 1"/>
+                </material>
+            </visual>
+    </link>
+
+    <joint name="ramie2_do_ramie3" type="prismatic">
+        <axis xyz="0 0 1"/>
+        <limit upper="5.0" lower="-5.0" effort="10" velocity="10" />
+        <parent link="ramie2"/>
+        <child link="ramie3"/>
+        <origin xyz="0.5 0 -0.5" rpy="0 3.14 0"/>
+    </joint>
 </robot>
