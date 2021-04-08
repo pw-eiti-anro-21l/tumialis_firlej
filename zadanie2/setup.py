@@ -25,7 +25,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'state_publisher = zadanie2.state_publisher:main'
+            'joint_state_publisher = zadanie2.joint_state_publisher:main'
         ],
     },
 )
