@@ -71,9 +71,23 @@ class StatePublisher(Node):
                 self.poz2 -= 0.05
 
             if self.poz3 < self.get_parameter('poz3').get_parameter_value().double_value:
-                self.poz3 += 0.01
+                self.poz3 += 0.02
             if self.poz3 >= self.get_parameter('poz3').get_parameter_value().double_value:
-                self.poz3 -= 0.01
+                self.poz3 -= 0.02
+
+            # limits
+            if self.poz1 > 3.14:
+                self.poz1 = 3.14
+            if self.poz1 < -3.14:
+                self.poz1 = -3.14
+            if self.poz2 > 2.6:
+                self.poz2 = 2.6
+            if self.poz2 < -2.6:
+                self.poz2 = -2.6
+            if self.poz3 > 0.1:
+                self.poz3 = 0.1
+            if self.poz3 < -0.5:
+                self.poz3 = -0.5
 
         except KeyboardInterrupt:
             pass

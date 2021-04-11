@@ -8,6 +8,8 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
     use_sim_time = LaunchConfiguration('use_sim_time', default='false')
+    xacro_file_name = 'manipulator.urdf.xacro.xml'
+    xacro = os.path.join(get_package_share_directory('zadanie2'), xacro_file_name)
 
     poz1 = 0.0
     poz2 = 0.0
@@ -18,6 +20,16 @@ def generate_launch_description():
             'use_sim_time',
             default_value='false',
             description='Use simulation (Gazebo) clock if true'),
+
+        Node(
+            package='robot_state_publisher',
+            executable='robot_state_publisher',
+            name='robot_state_publisher',
+            output='screen',
+            parameters=[{
+                'use_sim_time': use_sim_time,
+                'robot_description': Command(['xacro', ' ', xacro])
+            }]),
 
         Node(
             package='zadanie2',

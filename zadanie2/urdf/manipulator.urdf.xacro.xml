@@ -31,7 +31,7 @@
 
     <joint name="baza_do_ramie1" type="revolute">
         <axis xyz="0 0 1"/>
-        <limit upper="6" lower="-6" effort="10" velocity="2" />
+        <limit upper="-3.14" lower="3.14" effort="10" velocity="3" />
         <parent link="baza"/>
         <child link="ramie1"/>
         <origin xyz="${macierzDH['ramie1']['a']} ${macierzDH['ramie1']['d'] * sin(macierzDH['ramie1']['alfa']) * (-1)} ${macierzDH['ramie1']['d'] * cos(macierzDH['ramie1']['alfa'])}" rpy="${(macierzDH['ramie1']['alfa'] * pi) / 3.14 } 0 ${(macierzDH['ramie1']['theta'] * pi) / 3.14 }"/>
@@ -51,7 +51,7 @@
 
     <joint name="ramie1_do_ramie2" type="revolute">
         <axis xyz="0 0 1"/>
-        <limit upper="6" lower="-6" effort="10" velocity="2" />
+        <limit upper="2.6" lower="-2.6" effort="10" velocity="3" />
         <parent link="ramie1"/>
         <child link="ramie2"/>
         <origin xyz="${macierzDH['ramie2']['a']} ${macierzDH['ramie2']['d'] * sin(macierzDH['ramie2']['alfa']) * (-1)} ${macierzDH['ramie2']['d'] * cos(macierzDH['ramie2']['alfa'])}" rpy="${(macierzDH['ramie2']['alfa'] * pi) / 3.14 } 0 ${(macierzDH['ramie2']['theta'] * pi) / 3.14 }"/>
@@ -71,7 +71,7 @@
 
     <joint name="ramie2_do_ramie3" type="prismatic">
         <axis xyz="0 0 1"/>
-        <limit upper="6" lower="-6" effort="10" velocity="2" />
+        <limit upper="0.1" lower="-0.5" effort="10" velocity="2" />
         <parent link="ramie2"/>
         <child link="ramie3"/>
         <origin xyz="${macierzDH['ramie3']['a']} ${macierzDH['ramie3']['d'] * sin(macierzDH['ramie3']['alfa']) * (-1)} ${macierzDH['ramie3']['d'] * cos(macierzDH['ramie3']['alfa'])}" rpy="${(macierzDH['ramie3']['alfa'] * pi) / 3.14 } 0 ${(macierzDH['ramie3']['theta'] * pi) / 3.14 }"/>
