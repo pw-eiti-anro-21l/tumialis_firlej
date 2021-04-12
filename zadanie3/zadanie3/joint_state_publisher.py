@@ -21,9 +21,6 @@ class StatePublisher(Node):
         self.nodeName = self.get_name()
         self.get_logger().info("{0} started".format(self.nodeName))
 
-        degree = pi / 180.0
-        self.loop_rate = self.create_rate(30)
-
         # robot state parameters
         self.declare_parameter('poz1', 0.0)
         self.declare_parameter('poz2', 0.0)
@@ -39,7 +36,7 @@ class StatePublisher(Node):
         self.odom_trans.child_frame_id = 'baza'
         self.joint_state = JointState()
 
-        self.timer = self.create_timer(0.1, self.update_state)
+        self.timer = self.create_timer(1, self.update_state)
 
     def update_state(self):
 
@@ -57,7 +54,6 @@ class StatePublisher(Node):
             self.broadcaster.sendTransform(self.odom_trans)
 
             # This will adjust as needed per iteration
-            self.loop_rate.sleep()
 
             # change params
             if self.poz1 < self.get_parameter('poz1').get_parameter_value().double_value:

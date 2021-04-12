@@ -9,7 +9,7 @@ from launch_ros.actions import Node
 def generate_launch_description():
     use_sim_time = LaunchConfiguration('use_sim_time', default='false')
     xacro_file_name = 'manipulator.urdf.xacro.xml'
-    xacro = os.path.join(get_package_share_directory('zadanie2'), xacro_file_name)
+    xacro = os.path.join(get_package_share_directory('zadanie3'), xacro_file_name)
 
     poz1 = 0.0
     poz2 = 0.0
