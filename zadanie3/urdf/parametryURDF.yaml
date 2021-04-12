@@ -1,0 +1,27 @@
+baza:
+  length: 1
+  radius: 0.1
+  roll: 0
+  pitch: 0
+  yaw: 0
+ramie1:
+  x: 0.5
+  y: 0.05
+  z: 0.05
+  roll: 0
+  pitch: 0
+  yaw: 0
+ramie2:
+  x: 0.5
+  y: 0.05
+  z: 0.05
+  roll: 0
+  pitch: 0
+  yaw: 0
+ramie3:
+  x: 0.05
+  y: 0.05
+  z: 0.6
+  roll: 0 
+  pitch: 0
+  yaw: 0
