@@ -10,6 +10,8 @@ def generate_launch_description():
     use_sim_time = LaunchConfiguration('use_sim_time', default='false')
     xacro_file_name = 'manipulator.urdf.xacro.xml'
     xacro = os.path.join(get_package_share_directory('zadanie3'), xacro_file_name)
+    yaml_file_name = 'macierzDH.yaml'
+    yaml = os.path.join(get_package_share_directory('zadanie3'), yaml_file_name)
 
     poz1 = 0.0
     poz2 = 0.0
@@ -32,7 +34,7 @@ def generate_launch_description():
             }]),
 
         Node(
-            package='zadanie2',
+            package='zadanie3',
             executable='joint_state_publisher',
             name='joint_state_publisher',
             parameters=[{
@@ -40,6 +42,16 @@ def generate_launch_description():
                 'poz2': poz2,
                 'poz3': poz3,
                 'use_sim_time': use_sim_time,
+            }],
+            output='screen'),
+
+        Node(
+            package='zadanie3',
+            executable='non_kdl_dkin',
+            name='non_kdl_pose_stamped',
+            parameters=[{
+                'use_sim_time': use_sim_time,
+                'yaml_file': yaml
             }],
             output='screen'),
 
