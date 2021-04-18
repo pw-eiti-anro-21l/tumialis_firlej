@@ -26,7 +26,8 @@ setup(
     entry_points={
         'console_scripts': [
             'joint_state_publisher = zadanie3.joint_state_publisher:main',
-            'non_kdl_dkin = zadanie3.non_kdl_dkin:main'
+            'non_kdl_dkin = zadanie3.non_kdl_dkin:main',
+			'kdl_dkin = zadanie3.kdl_dkin:main'
         ],
     },
 )
