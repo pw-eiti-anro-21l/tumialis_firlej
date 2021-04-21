@@ -38,7 +38,7 @@ class KdlDkin(Node):
         self.alfa3 = dict(macierzDH.get('ramie3')).get('alfa')
 
         qos_profile = QoSProfile(depth=10)
-        self.pose_pub = self.create_publisher(PoseStamped, 'pose_stamped_nonkdl', qos_profile)
+        self.pose_pub = self.create_publisher(PoseStamped, 'pose_stamped_kdl', qos_profile)
         self.joint_state = self.create_subscription(JointState, 'joint_states', self.listener_callback, 10)
 
         # self.broadcaster = TransformBroadcaster(self, qos=qos_profile)
@@ -83,7 +83,7 @@ class KdlDkin(Node):
 
         joint_positions=JntArray(3)
         joint_positions[0]= self.poz1
-        joint_positions[1]= -self.poz2
+        joint_positions[1]= self.poz2
         joint_positions[2]= -self.poz3
 
         fk=ChainFkSolverPos_recursive(chain)
@@ -96,7 +96,7 @@ class KdlDkin(Node):
         self.pose_stamped.pose.position.x = xyz[0]
         self.pose_stamped.pose.position.y = xyz[1]
         self.pose_stamped.pose.position.z = xyz[2]
-        self.pose_stamped.pose.orientation = Quaternion(w=float(qua[0]), x=float(qua[1]), y=float(qua[2]), z=float(qua[3]))
+        self.pose_stamped.pose.orientation = Quaternion(x=float(qua[0]), y=float(qua[1]), z=float(qua[2]), w=float(qua[3]))
 
 
 def euler_to_quaternion(roll, pitch, yaw):
