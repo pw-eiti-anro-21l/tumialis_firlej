@@ -63,14 +63,25 @@ class KdlDkin(Node):
     def calculate_pose_stamp(self):
 
         chain = Chain()
+        # baza_ramie1 = Joint(Joint.RotZ) 
+        # frame1 = Frame(Rotation.RPY(0,0,0), Vector(0,0,self.d1)) 
+        # segment1 = Segment(baza_ramie1,frame1)
+        # chain.addSegment(segment1) 
+
+
+        # ramie1_ramie2 = Joint(Joint.RotZ) 
+        # frame2 = Frame(Rotation.RPY(0,0,0), Vector(self.a2,0,0)) 
+        # segment2=Segment(ramie1_ramie2,frame2)
+        # chain.addSegment(segment2)
+
         baza_ramie1 = Joint(Joint.RotZ) 
-        frame1 = Frame(Rotation.RPY(0,0,0), Vector(0,0,self.d1)) 
+        frame1 = Frame(Rotation.RPY(0,0,0), Vector(self.a2,0,self.d1))
         segment1 = Segment(baza_ramie1,frame1)
         chain.addSegment(segment1) 
 
 
         ramie1_ramie2 = Joint(Joint.RotZ) 
-        frame2 = Frame(Rotation.RPY(0,0,0), Vector(self.a2,0,0))
+        frame2 = Frame(Rotation.RPY(0,0,0), Vector(0,0,0))
         segment2=Segment(ramie1_ramie2,frame2)
         chain.addSegment(segment2)
 
@@ -81,22 +92,22 @@ class KdlDkin(Node):
         chain.addSegment(segment3)
 
 
-        joint_positions=JntArray(3)
-        joint_positions[0]= self.poz1
-        joint_positions[1]= self.poz2
-        joint_positions[2]= -self.poz3
+        jointPositions=JntArray(3)
+        jointPositions[0]= self.poz1
+        jointPositions[1]= self.poz2
+        jointPositions[2]= -self.poz3
 
-        fk=ChainFkSolverPos_recursive(chain)
+        solver=ChainFkSolverPos_recursive(chain)
         finalFrame=Frame()
-        fk.JntToCart(joint_positions,finalFrame)
+        solver.JntToCart(jointPositions,finalFrame)
 
-        qua = finalFrame.M.GetQuaternion()
+        quaternion = finalFrame.M.GetQuaternion()
         xyz = finalFrame.p
         
         self.pose_stamped.pose.position.x = xyz[0]
         self.pose_stamped.pose.position.y = xyz[1]
         self.pose_stamped.pose.position.z = xyz[2]
-        self.pose_stamped.pose.orientation = Quaternion(x=float(qua[0]), y=float(qua[1]), z=float(qua[2]), w=float(qua[3]))
+        self.pose_stamped.pose.orientation = Quaternion(x=float(quaternion[0]), y=float(quaternion[1]), z=float(quaternion[2]), w=float(quaternion[3]))
 
 
 def euler_to_quaternion(roll, pitch, yaw):
