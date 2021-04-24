@@ -36,7 +36,7 @@ class StatePublisher(Node):
         self.odom_trans.child_frame_id = 'baza'
         self.joint_state = JointState()
 
-        self.timer = self.create_timer(0.2, self.update_state)
+        self.timer = self.create_timer(0.1, self.update_state)
 
     def update_state(self):
 

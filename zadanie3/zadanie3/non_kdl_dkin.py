@@ -44,20 +44,20 @@ class NonKdlDkin(Node):
         self.nodeName = self.get_name()
         self.get_logger().info("{0} started".format(self.nodeName))
 
-        # rate
-        self.rate = self.create_rate(10)
+        # timer
+        self.create_timer(0.1, self.publish_pose_stamp)
 
     def listener_callback(self, msg):
         # get joint state
         [self.poz1, self.poz2, self.poz3] = msg.position
 
+    def publish_pose_stamp(self):
         # publish pose of chwytak
         now = self.get_clock().now()
         self.calculate_pose_stamp()
         self.pose_stamped.header.stamp = now.to_msg()
-        self.pose_stamped.header.frame_id = 'baza'
+        self.pose_stamped.header.frame_id = 'odom'
         self.pose_pub.publish(self.pose_stamped)
-        self.rate.sleep()
 
     def calculate_pose_stamp(self):
         T01 = numpy.array([[cos(self.poz1), -sin(self.poz1), 0.0, 0.0],
@@ -96,7 +96,7 @@ def euler_to_quaternion(roll, pitch, yaw):
     qy = cos(roll / 2) * sin(pitch / 2) * cos(yaw / 2) + sin(roll / 2) * cos(pitch / 2) * sin(yaw / 2)
     qz = cos(roll / 2) * cos(pitch / 2) * sin(yaw / 2) - sin(roll / 2) * sin(pitch / 2) * cos(yaw / 2)
     qw = cos(roll / 2) * cos(pitch / 2) * cos(yaw / 2) + sin(roll / 2) * sin(pitch / 2) * sin(yaw / 2)
-    return Quaternion(x=qx, y=qy, z=qz, w=qw)
+    return Quaternion(x=float(qx), y=float(qy), z=float(qz), w=float(qw))
 
 
 def main():

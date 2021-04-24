@@ -45,20 +45,20 @@ class KdlDkin(Node):
         self.nodeName = self.get_name()
         self.get_logger().info("{0} started".format(self.nodeName))
 
-        # rate
-        self.rate = self.create_rate(10)
+        # timer
+        self.create_timer(0.1, self.publish_pose_stamp)
 
     def listener_callback(self, msg):
         # get joint state
         [self.poz1, self.poz2, self.poz3] = msg.position
 
+    def publish_pose_stamp(self):
         # publish pose of chwytak
         now = self.get_clock().now()
         self.calculate_pose_stamp()
         self.pose_stamped.header.stamp = now.to_msg()
         self.pose_stamped.header.frame_id = 'baza'
         self.pose_pub.publish(self.pose_stamped)
-        self.rate.sleep()
 
     def calculate_pose_stamp(self):
 
@@ -68,46 +68,44 @@ class KdlDkin(Node):
         # segment1 = Segment(baza_ramie1,frame1)
         # chain.addSegment(segment1) 
 
-
-        # ramie1_ramie2 = Joint(Joint.RotZ) 
+        # ramie1_ramie2 = Joint(Joint.RotZ)
         # frame2 = Frame(Rotation.RPY(0,0,0), Vector(self.a2,0,0)) 
         # segment2=Segment(ramie1_ramie2,frame2)
         # chain.addSegment(segment2)
 
-        baza_ramie1 = Joint(Joint.RotZ) 
-        frame1 = Frame(Rotation.RPY(0,0,0), Vector(self.a2,0,self.d1))
-        segment1 = Segment(baza_ramie1,frame1)
-        chain.addSegment(segment1) 
+        baza_ramie1 = Joint(Joint.RotZ)
+        frame1 = Frame(Rotation.RPY(0, 0, 0), Vector(self.a2, 0, self.d1))
+        segment1 = Segment(baza_ramie1, frame1)
+        chain.addSegment(segment1)
 
-
-        ramie1_ramie2 = Joint(Joint.RotZ) 
-        frame2 = Frame(Rotation.RPY(0,0,0), Vector(0,0,0))
-        segment2=Segment(ramie1_ramie2,frame2)
+        ramie1_ramie2 = Joint(Joint.RotZ)
+        frame2 = Frame(Rotation.RPY(0, 0, 0), Vector(0, 0, 0))
+        segment2 = Segment(ramie1_ramie2, frame2)
         chain.addSegment(segment2)
 
-
         ramie2_ramie3 = Joint(Joint.TransZ)
-        frame3 = Frame(Rotation.RPY(self.alfa3,0,0), Vector(self.a3,(self.d3*sin(self.alfa3)*(-1)),(self.d3*cos(self.alfa3))))
-        segment3=Segment(ramie2_ramie3,frame3)
+        frame3 = Frame(Rotation.RPY(self.alfa3, 0, 0),
+                       Vector(self.a3, (self.d3 * sin(self.alfa3) * (-1)), (self.d3 * cos(self.alfa3))))
+        segment3 = Segment(ramie2_ramie3, frame3)
         chain.addSegment(segment3)
 
+        jointPositions = JntArray(3)
+        jointPositions[0] = self.poz1
+        jointPositions[1] = self.poz2
+        jointPositions[2] = -self.poz3
 
-        jointPositions=JntArray(3)
-        jointPositions[0]= self.poz1
-        jointPositions[1]= self.poz2
-        jointPositions[2]= -self.poz3
-
-        solver=ChainFkSolverPos_recursive(chain)
-        finalFrame=Frame()
-        solver.JntToCart(jointPositions,finalFrame)
+        solver = ChainFkSolverPos_recursive(chain)
+        finalFrame = Frame()
+        solver.JntToCart(jointPositions, finalFrame)
 
         quaternion = finalFrame.M.GetQuaternion()
         xyz = finalFrame.p
-        
-        self.pose_stamped.pose.position.x = xyz[0]
-        self.pose_stamped.pose.position.y = xyz[1]
-        self.pose_stamped.pose.position.z = xyz[2]
-        self.pose_stamped.pose.orientation = Quaternion(x=float(quaternion[0]), y=float(quaternion[1]), z=float(quaternion[2]), w=float(quaternion[3]))
+
+        self.pose_stamped.pose.position.x = float(xyz[0])
+        self.pose_stamped.pose.position.y = float(xyz[1])
+        self.pose_stamped.pose.position.z = float(xyz[2])
+        self.pose_stamped.pose.orientation = Quaternion(x=float(quaternion[0]), y=float(quaternion[1]),
+                                                        z=float(quaternion[2]), w=float(quaternion[3]))
 
 
 def euler_to_quaternion(roll, pitch, yaw):
