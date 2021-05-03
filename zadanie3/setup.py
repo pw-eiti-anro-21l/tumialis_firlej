@@ -11,7 +11,7 @@ setup(
     packages=[package_name],
     data_files=[
         ('share/ament_index/resource_index/packages',
-            ['resource/' + package_name]),
+         ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
         (os.path.join('share', package_name), glob('launch/*.py')),
         (os.path.join('share', package_name), glob('urdf/*')),
@@ -27,7 +27,7 @@ setup(
         'console_scripts': [
             'joint_state_publisher = zadanie3.joint_state_publisher:main',
             'non_kdl_dkin = zadanie3.non_kdl_dkin:main',
-			'kdl_dkin = zadanie3.kdl_dkin:main'
+            'kdl_dkin = zadanie3.kdl_dkin:main'
         ],
     },
 )

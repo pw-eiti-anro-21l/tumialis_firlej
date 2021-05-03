@@ -9,7 +9,7 @@ from launch_ros.actions import Node
 def generate_launch_description():
     use_sim_time = LaunchConfiguration('use_sim_time', default='false')
     rviz2_file_name = 'manipulator.rviz'
-    rviz2 = os.path.join(get_package_share_directory('zadanie3'), rviz2_file_name)
+    rviz2 = os.path.join(get_package_share_directory('zadanie4'), rviz2_file_name)
 
     return LaunchDescription([
         DeclareLaunchArgument(

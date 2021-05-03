@@ -9,9 +9,9 @@ from launch_ros.actions import Node
 def generate_launch_description():
     use_sim_time = LaunchConfiguration('use_sim_time', default='false')
     xacro_file_name = 'manipulator.urdf.xacro.xml'
-    xacro = os.path.join(get_package_share_directory('zadanie3'), xacro_file_name)
+    xacro = os.path.join(get_package_share_directory('zadanie4'), xacro_file_name)
     yaml_file_name = 'macierzDH.yaml'
-    yaml = os.path.join(get_package_share_directory('zadanie3'), yaml_file_name)
+    yaml = os.path.join(get_package_share_directory('zadanie4'), yaml_file_name)
 
     poz1 = 0.0
     poz2 = 0.0
@@ -34,7 +34,7 @@ def generate_launch_description():
             }]),
 
         Node(
-            package='zadanie3',
+            package='zadanie4',
             executable='joint_state_publisher',
             name='joint_state_publisher',
             parameters=[{
@@ -46,7 +46,7 @@ def generate_launch_description():
             output='screen'),
 
         Node(
-            package='zadanie3',
+            package='zadanie4',
             executable='non_kdl_dkin',
             name='non_kdl_pose_stamped',
             parameters=[{
@@ -56,7 +56,7 @@ def generate_launch_description():
             output='screen'),
 
         Node(
-            package='zadanie3',
+            package='zadanie4',
             executable='kdl_dkin',
             name='kdl_pose_stamped',
             parameters=[{
