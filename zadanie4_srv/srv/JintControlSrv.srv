@@ -2,7 +2,7 @@
 string interpolation ""
 
 # time of movement
-float64 time 1.0
+float64 time 0.0
 
 # new pose for every joint
 float64 newpoz1 0.0

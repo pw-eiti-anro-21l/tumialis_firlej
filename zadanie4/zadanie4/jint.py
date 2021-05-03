@@ -9,11 +9,7 @@ from rclpy.qos import QoSProfile
 from geometry_msgs.msg import Quaternion
 from sensor_msgs.msg import JointState
 from tf2_ros import TransformBroadcaster, TransformStamped
-from zadanie4_srv.srv import Interpolation
-
-
-def interpolate_linear(x0, x1, t0, t1, timePassed):
-    return x0 + ((x1 - x0) / (t1 - t0)) * (timePassed - t0)
+from zadanie4_srv.srv import JintControlSrv
 
 
 class Jint(Node):
@@ -25,7 +21,7 @@ class Jint(Node):
         qos_profile = QoSProfile(depth=10)
         self.joint_pub = self.create_publisher(JointState, 'joint_states', qos_profile)
         self.broadcaster = TransformBroadcaster(self, qos=qos_profile)
-        self.jint_control_srv = self.create_service(Interpolation, "interpolation_params",
+        self.jint_control_srv = self.create_service(JintControlSrv, "interpolation_params",
                                                     self.interpolation_params_callback)
         self.nodeName = self.get_name()
         self.get_logger().info("{0} started".format(self.nodeName))
@@ -39,20 +35,21 @@ class Jint(Node):
         self.poz3 = self.get_parameter('poz3').get_parameter_value().double_value
 
         # interpolation parameters
-        self.time = 0.0
+        self.target_time = 0.0
         self.oldpoz1 = self.poz1
         self.oldpoz2 = self.poz2
         self.oldpoz3 = self.poz3
         self.newpoz1 = 0.0
         self.newpoz2 = 0.0
         self.newpoz3 = 0.0
-        self.interpolationMethod = "linear"
-        self.timePeriod = 0.1
-        self.timePassed = 0.0
-        self.rate = self.create_rate(5)
+        self.interpolation_method = ""
+        self.time_period = 0.05
+        self.time_passed = 0.0
+        self.max_error = 0.05
+        self.err_poz = [0.0, 0.0, 0.0]
 
         # threading
-        self.result = None
+        self.result = False
 
         # message declarations
         self.odom_trans = TransformStamped()
@@ -70,25 +67,38 @@ class Jint(Node):
         self.newpoz3 = request.newpoz3
 
         if request.time <= 0.0:
-            response.operation = "Time must be grater than zero"
+            response.operation = "Provided time of movement must be greater than zero"
         else:
-            if request.interpolation == "linear":
-                self.time = request.time
+            if request.interpolation == "linear" or request.interpolation == "spline":
+                self.target_time = request.time
                 self.oldpoz1 = self.poz1
                 self.oldpoz2 = self.poz2
                 self.oldpoz3 = self.poz3
-                self.interpolationMethod = request.interpolation
-                self.timePassed = 0.0
+                self.interpolation_method = request.interpolation
+                self.time_passed = 0.0
+                self.result = False
 
-                thread = threading.Thread(target=self.update_state)  # enable loop on a different thread
-                thread.start()
+                thread = threading.Thread(target=self.update_state)  # create update_state loop on a different thread
+                thread.start()  # start thread
                 thread.join()  # wait for the thread to stop
-                self.get_logger().info(str(self.result))  # print if successful
-                response.operation = "very very nice ;)"
+
+                if self.result:
+                    response.operation = "Successfully interpolated with " + request.interpolation + " method! " + \
+                                         "Absolute errors: " + str(self.err_poz)
+                else:
+                    response.operation = "No success! Interpolation wasn't precise enough with " + \
+                                         request.interpolation + " method! " + \
+                                         "Absolute errors: " + str(self.err_poz)
+
+            elif request.interpolation == "":
+                response.operation = "Please provide interpolation method e.g. 'linear' or 'spline'"
+
             else:
-                response.operation = "very not nice :("
+                response.operation = "Not known interpolation method. Available methods: 'linear', 'spline'"
+
         return response
 
+    # method to publish new state even if not changing (to keep connection with rviz)
     def publish_state(self):
         while True:
             try:
@@ -102,23 +112,27 @@ class Jint(Node):
                 # send the joint state and transform
                 self.joint_pub.publish(self.joint_state)
                 self.broadcaster.sendTransform(self.odom_trans)
-                time.sleep(self.timePeriod)
+                time.sleep(self.time_period)
+
             except KeyboardInterrupt:
-                pass
+                exit(0)
 
+    # method to interpolate all new positions of joints
     def update_state(self):
-
         while True:
 
             # change params
             if self.poz1 != self.newpoz1:
-                self.poz1 = interpolate_linear(self.oldpoz1, self.newpoz1, 0, self.time, self.timePassed)
+                self.poz1 = interpolate(self.oldpoz1, self.newpoz1, 0, self.target_time, self.time_passed,
+                                        self.interpolation_method)
 
             if self.poz2 != self.newpoz2:
-                self.poz2 = interpolate_linear(self.oldpoz2, self.newpoz2, 0, self.time, self.timePassed)
+                self.poz2 = interpolate(self.oldpoz2, self.newpoz2, 0, self.target_time, self.time_passed,
+                                        self.interpolation_method)
 
-            if self.poz3 != self.oldpoz3:
-                self.poz3 = interpolate_linear(self.oldpoz3, self.newpoz3, 0, self.time, self.timePassed)
+            if self.poz3 != self.newpoz3:
+                self.poz3 = interpolate(self.oldpoz3, self.newpoz3, 0, self.target_time, self.time_passed,
+                                        self.interpolation_method)
 
             # limits - if reached, automatically sets parameters to limit values, displays error
             if self.poz1 > 3.14:
@@ -152,22 +166,51 @@ class Jint(Node):
                     "Reached limit of joint position! Min parameter 'poz3' value: " + str(self.poz3))
 
             # count time for interpolation
-            time.sleep(self.timePeriod)
-            # self.get_logger().info(str(self.timePassed))
-            if self.timePassed < self.time:
-                self.timePassed += self.timePeriod
-            elif self.timePassed > self.time:
-                self.timePassed = self.time  # zaokraglenie
-                self.result = True
+            time.sleep(self.time_period)
+
+            if self.time_passed == self.target_time:  # reached target time of movement
+                self.result = self.check_reached_position()  # remember if targeted accuracy is met (and save errors)
                 break
 
+            if self.time_passed + self.time_period > self.target_time:  # if timePassed will reach target time in next iteration
+                self.time_passed = self.target_time  # zaokraglenie
 
-def euler_to_quaternion(roll, pitch, yaw):
-    qx = sin(roll / 2) * cos(pitch / 2) * cos(yaw / 2) - cos(roll / 2) * sin(pitch / 2) * sin(yaw / 2)
-    qy = cos(roll / 2) * sin(pitch / 2) * cos(yaw / 2) + sin(roll / 2) * cos(pitch / 2) * sin(yaw / 2)
-    qz = cos(roll / 2) * cos(pitch / 2) * sin(yaw / 2) - sin(roll / 2) * sin(pitch / 2) * cos(yaw / 2)
-    qw = cos(roll / 2) * cos(pitch / 2) * cos(yaw / 2) + sin(roll / 2) * sin(pitch / 2) * sin(yaw / 2)
-    return Quaternion(x=qx, y=qy, z=qz, w=qw)
+            if self.time_passed < self.target_time:  # if timePassed won't reach target time in next iteration next
+                self.time_passed += self.time_period
+
+    # check if current positions are equal to targeted with given accuracy
+    def check_reached_position(self):
+        self.count_abs_error()
+        return self.err_poz[0] <= self.max_error and self.err_poz[1] <= self.max_error and self.err_poz[
+            2] <= self.max_error
+
+    def count_abs_error(self):
+        self.err_poz = [abs(self.poz1 - self.newpoz1), abs(self.poz2 - self.newpoz2), abs(self.poz3 - self.newpoz3)]
+
+
+# method to count linear interpolated position for given current time
+def interpolate_linear(x0, x1, t0, t1, time_passed):
+    return x0 + ((x1 - x0) / (t1 - t0)) * (time_passed - t0)
+
+
+# method to count spline cubic interpolated position for given current time
+def interpolate_spline_cubic(x0, x1, t0, t1, time_passed):
+    tx = (time_passed - t0) / (t1 - t0)  # wzor z wiki
+    k1 = 0  # pochodna rowna zero v(t0) = 0
+    k2 = 0  # pochodna rowna zero v(t1) = 0
+    a = k1 * (t1 - t0) - (x1 - x0)
+    b = - k2 * (t1 - t0) + (x1 - x0)
+    qx = (1 - tx) * x0 + tx * x1 + tx * (1 - tx) * ((1 - tx) * a + tx * b)
+    return qx
+
+
+# method to interpolate with given method
+def interpolate(x0, x1, t0, t1, time_passed, method):
+    if method == "linear":
+        return interpolate_linear(x0, x1, t0, t1, time_passed)
+    elif method == "spline":
+        return interpolate_spline_cubic(x0, x1, t0, t1, time_passed)
+
 
 def main():
     node = Jint()
