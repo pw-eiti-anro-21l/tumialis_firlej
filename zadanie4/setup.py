@@ -28,7 +28,8 @@ setup(
             'joint_state_publisher = zadanie4.joint_state_publisher:main',
             'non_kdl_dkin = zadanie4.non_kdl_dkin:main',
             'kdl_dkin = zadanie4.kdl_dkin:main',
-            'jint = zadanie4.jint:main'
+            'jint = zadanie4.jint:main',
+			'oint = zadanie4.oint:main'
         ],
     },
 )
