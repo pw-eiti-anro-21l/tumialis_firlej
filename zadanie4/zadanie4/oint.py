@@ -6,10 +6,12 @@ import rclpy
 from time import sleep
 from rclpy.node import Node
 from rclpy.qos import QoSProfile
+from nav_msgs.msg import Path
 from geometry_msgs.msg import Quaternion
 from geometry_msgs.msg import PoseStamped
 from tf2_ros import TransformBroadcaster, TransformStamped
 from zadanie4_oint_srv.srv import OintControlSrv
+from copy import deepcopy
 
 
 class Oint(Node):
@@ -23,6 +25,7 @@ class Oint(Node):
         self.odom_trans.header.frame_id = 'odom'
         self.odom_trans.child_frame_id = 'baza'
         self.pose_stamped = PoseStamped()
+        self.oint_path = Path()
 
         # robot state parameters
         self.declare_parameter('x', 0.0)
@@ -63,8 +66,9 @@ class Oint(Node):
 
         qos_profile = QoSProfile(depth=10)
         self.oint_pub = self.create_publisher(PoseStamped, 'pose_stamped_oint', qos_profile)
+        self.path_pub = self.create_publisher(Path, 'path_poses', qos_profile)
         self.broadcaster = TransformBroadcaster(self, qos=qos_profile)
-        self.oint_control_srv = self.create_service(OintControlSrv, "interpolation_params",
+        self.oint_control_srv = self.create_service(OintControlSrv, "interpolation_params_oint",
                                                     self.interpolation_params_callback)
         self.nodeName = self.get_name()
         self.get_logger().info("{0} started".format(self.nodeName))
@@ -129,13 +133,19 @@ class Oint(Node):
                 self.pose_stamped.pose.orientation = euler_to_quaternion(self.roll, self.pitch, self.yaw)
                 #self.pose_stamped.pose.orientation = Quaternion(w=0.0, x=self.roll, y=self.pitch, z=self.yaw)
 
+                self.oint_path.header.stamp = now.to_msg()
+                self.oint_path.header.frame_id = 'odom'
+
                 self.pose_stamped.header.stamp = now.to_msg()
                 self.pose_stamped.header.frame_id = 'odom'
+				
+                self.oint_path.poses.append(deepcopy(self.pose_stamped))
 
                 self.odom_trans.header.stamp = now.to_msg()
 
                 # send the joint state and transform                
-                self.oint_pub.publish(self.pose_stamped)
+                self.oint_pub.publish(self.pose_stamped)  
+                self.path_pub.publish(self.oint_path)
                 self.broadcaster.sendTransform(self.odom_trans)
                 time.sleep(self.time_period)
 
