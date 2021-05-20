@@ -28,15 +28,15 @@ class Oint(Node):
         self.oint_path = Path()
 
         # robot state parameters
-        self.declare_parameter('x', 0.0)
+        self.declare_parameter('x', 1.0)
         self.declare_parameter('y', 0.0)
-        self.declare_parameter('z', 0.0)
+        self.declare_parameter('z', 0.5)
         self.declare_parameter('roll', 0.0)
         self.declare_parameter('pitch', 0.0)
         self.declare_parameter('yaw', 0.0)
-        self.x = self.get_parameter('x').get_parameter_value().double_value
-        self.y = self.get_parameter('y').get_parameter_value().double_value
-        self.z = self.get_parameter('z').get_parameter_value().double_value
+        self.x = 1.0
+        self.y = 0.0
+        self.z = 0.5
         self.roll = self.get_parameter('roll').get_parameter_value().double_value
         self.pitch = self.get_parameter('pitch').get_parameter_value().double_value
         self.yaw = self.get_parameter('yaw').get_parameter_value().double_value
@@ -67,7 +67,7 @@ class Oint(Node):
         qos_profile = QoSProfile(depth=10)
         self.oint_pub = self.create_publisher(PoseStamped, 'pose_stamped_oint', qos_profile)
         self.path_pub = self.create_publisher(Path, 'path_poses', qos_profile)
-        self.broadcaster = TransformBroadcaster(self, qos=qos_profile)
+        # self.broadcaster = TransformBroadcaster(self, qos=qos_profile)
         self.oint_control_srv = self.create_service(OintControlSrv, "interpolation_params_oint",
                                                     self.interpolation_params_callback)
         self.nodeName = self.get_name()
@@ -146,7 +146,7 @@ class Oint(Node):
                 # send the joint state and transform                
                 self.oint_pub.publish(self.pose_stamped)
                 self.path_pub.publish(self.oint_path)
-                self.broadcaster.sendTransform(self.odom_trans)
+                # self.broadcaster.sendTransform(self.odom_trans)
                 time.sleep(self.time_period)
 
             except KeyboardInterrupt:

@@ -8,17 +8,10 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
     use_sim_time = LaunchConfiguration('use_sim_time', default='false')
-    rviz2_file_name = 'manipulator.rviz'
-    rviz2 = os.path.join(get_package_share_directory('zadanie4'), rviz2_file_name)
+    yaml_file_name = 'macierzDH.yaml'
+    yaml = os.path.join(get_package_share_directory('zadanie5'), yaml_file_name)
     xacro_file_name = 'manipulator.urdf.xacro.xml'
-    xacro = os.path.join(get_package_share_directory('zadanie4'), xacro_file_name)
-
-    x = 0.0
-    y = 0.0
-    z = 0.0
-    roll = 0.0
-    pitch = 0.0
-    yaw = 0.0
+    xacro = os.path.join(get_package_share_directory('zadanie5'), xacro_file_name)
 
     return LaunchDescription([
         DeclareLaunchArgument(
@@ -27,18 +20,23 @@ def generate_launch_description():
             description='Use simulation (Gazebo) clock if true'),
 
         Node(
-            package='zadanie4',
-            executable='oint',
-            name='oint',
+            package='zadanie5',
+            executable='ikin',
+            name='ikin_node',
             parameters=[{
-                'x': x,
-                'y': y,
-                'z': z,
-                'roll': roll,
-                'pitch': pitch,
-                'yaw': yaw,
                 'use_sim_time': use_sim_time,
+                'yaml_file': yaml
             }],
             output='screen'),
+
+        Node(
+            package='robot_state_publisher',
+            executable='robot_state_publisher',
+            name='robot_state_publisher',
+            output='screen',
+            parameters=[{
+                'use_sim_time': use_sim_time,
+                'robot_description': Command(['xacro', ' ', xacro])
+            }]),
 
     ])

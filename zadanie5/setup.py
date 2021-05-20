@@ -1,9 +1,8 @@
 import os
 from glob import glob
 from setuptools import setup
-from setuptools import find_packages
 
-package_name = 'zadanie4'
+package_name = 'zadanie5'
 
 setup(
     name=package_name,
@@ -11,7 +10,7 @@ setup(
     packages=[package_name],
     data_files=[
         ('share/ament_index/resource_index/packages',
-         ['resource/' + package_name]),
+            ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
         (os.path.join('share', package_name), glob('launch/*.py')),
         (os.path.join('share', package_name), glob('urdf/*')),
@@ -25,10 +24,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'joint_state_publisher = zadanie4.joint_state_publisher:main',
-            'non_kdl_dkin = zadanie4.non_kdl_dkin:main',
-            'kdl_dkin = zadanie4.kdl_dkin:main',
-            'jint = zadanie4.jint:main',
+            'ikin = zadanie5.ikin:main',
             'oint = zadanie4.oint:main'
         ],
     },
