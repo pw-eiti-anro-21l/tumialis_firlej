@@ -29,7 +29,7 @@ class Ikin(Node):
         self.a2 = dict(macierzDH.get('ramie2')).get('a')
         self.a3 = dict(macierzDH.get('ramie3')).get('a')
         self.d3 = dict(macierzDH.get('ramie3')).get('d')
-        self.alfa3 = dict(macierzDH.get('ramie3')).get('alfa')  # niepotrzebne
+        self.alfa3 = dict(macierzDH.get('ramie3')).get('alfa')  # =PI, więc zostanie skrócone
 
         # deklaracja polozenia jointow
         self.poz1 = 0.0
