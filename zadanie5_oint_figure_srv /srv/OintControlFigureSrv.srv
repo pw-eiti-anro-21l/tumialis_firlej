@@ -1,0 +1,17 @@
+# method of interpolation
+string figure ""
+
+# time of movement
+float64 time 0.0
+
+# new pose for every joint
+float64 newx 0.0
+float64 newy 0.0
+float64 newz 0.0
+float64 a 0.0
+float64 b 0.0
+
+---
+
+string operation "good"
+

@@ -92,10 +92,10 @@ class Ikin(Node):
             # liczenie poz1
             k1 = self.a2 + self.a3 * cosVal2
             k2 = self.a3 * sinVal2
-            r = sqrt(k1 ** 2 + k2 ** 2)
-            phi = atan2(k2, k1)
-            k1 = r * cos(phi)
-            k2 = r * sin(phi)
+            # r = sqrt(k1 ** 2 + k2 ** 2)
+            # phi = atan2(k2, k1)
+            # k1 = r * cos(phi)
+            # k2 = r * sin(phi)
             self.poz1 = atan2(self.y, self.x) - atan2(k2, k1)
 
             # liczenie poz3

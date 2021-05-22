@@ -25,7 +25,7 @@ setup(
     entry_points={
         'console_scripts': [
             'ikin = zadanie5.ikin:main',
-            'oint = zadanie4.oint:main'
+            'oint = zadanie5.oint:main'
         ],
     },
 )
