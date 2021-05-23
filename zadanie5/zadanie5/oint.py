@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 import time
-from math import sin, cos, pi
+from math import sin, cos, pi, sqrt
 import threading
 import rclpy
 from time import sleep
@@ -11,7 +11,7 @@ from geometry_msgs.msg import Quaternion
 from geometry_msgs.msg import PoseStamped
 from tf2_ros import TransformBroadcaster, TransformStamped
 from zadanie4_oint_srv.srv import OintControlSrv
-from zadanie5_oint_figure_srv .srv import OintControlFigureSrv
+from zadanie5_oint_figure_srv.srv import OintControlFigureSrv
 from copy import deepcopy
 
 
@@ -72,7 +72,7 @@ class Oint(Node):
         self.oint_control_srv = self.create_service(OintControlSrv, "interpolation_params_oint",
                                                     self.interpolation_params_callback)
         self.oint_control_figure_srv = self.create_service(OintControlFigureSrv, "interpolation_figure_params_oint",
-                                                    self.interpolation_figure_params_callback)
+                                                           self.interpolation_figure_params_callback)
         self.nodeName = self.get_name()
         self.get_logger().info("{0} started".format(self.nodeName))
 
@@ -123,17 +123,16 @@ class Oint(Node):
 
         return response
 
-
     def interpolation_figure_params_callback(self, request, response):
 
-        self.newx = request.newx + (request.a*0.5) 
+        self.newx = request.newx + (request.a * 0.5)
         self.newy = request.newy
         self.newz = request.newz
         self.newroll = 0
         self.newpitch = 0
         self.newyaw = 0
 
-        if request.time <= 0.0 and request.a>0.0 and request.b>0.0:
+        if request.time <= 0.0 and request.a > 0.0 and request.b > 0.0:
             response.operation = "Provided time of movement must be greater than zero"
         else:
             if request.figure == "ellipse" or request.figure == "rectangle":
@@ -153,19 +152,17 @@ class Oint(Node):
                 thread.join()  # wait for the thread to stop
 
                 if request.figure == "rectangle":
-                    
-                    
-                    self.draw_rectangle(0,0.5*request.b,request.a+request.b,request.time)
-                    self.draw_rectangle(-request.a,0,request.a+request.b,request.time)
-                    self.draw_rectangle(0,-request.b,request.a+request.b,request.time)
-                    self.draw_rectangle(request.a,0,request.a+request.b,request.time)
-                    self.draw_rectangle(0,0.5*request.b,request.a+request.b,request.time)
-
+                    self.draw_rectangle(0, 0.5 * request.b, request.a + request.b, request.time)
+                    self.draw_rectangle(-request.a, 0, request.a + request.b, request.time)
+                    self.draw_rectangle(0, -request.b, request.a + request.b, request.time)
+                    self.draw_rectangle(request.a, 0, request.a + request.b, request.time)
+                    self.draw_rectangle(0, 0.5 * request.b, request.a + request.b, request.time)
 
                 if request.figure == "ellipse":
-                    number_of_steps_ = int(request.time/(self.time_period))
-                    for i in range(1, number_of_steps_+1):
-                        self.draw_ellipse(0.5*request.a,0.5*request.b,request.newx,request.newz,i,number_of_steps_)
+                    number_of_steps_ = int(request.time / (self.time_period))
+                    for i in range(1, number_of_steps_ + 1):
+                        self.draw_ellipse(0.5 * request.a, 0.5 * request.b, request.newx, request.newz, i,
+                                          number_of_steps_)
 
                 if self.result:
                     response.operation = "Successfully interpolated with " + request.figure + " method! " + \
@@ -183,7 +180,7 @@ class Oint(Node):
 
             elif request.b <= 0.0:
                 response.operation = "Value of 'b' must be bigger than 0!"
-			
+
             else:
                 response.operation = "Not known figure method. Available methods: 'ellipse' or 'rectangle'"
 
@@ -193,10 +190,12 @@ class Oint(Node):
         self.newx = self.x + a
         self.newz = self.z + b
 
-        if (a+b <= 0): flaga = -1
-        else: flaga = 1
+        if (a + b <= 0):
+            flaga = -1
+        else:
+            flaga = 1
 
-        self.target_time = time*0.5*((a+b)/ab)*flaga
+        self.target_time = time * 0.5 * ((a + b) / ab) * flaga
         self.oldx = self.x
         self.oldy = self.y
         self.oldz = self.z
@@ -208,9 +207,9 @@ class Oint(Node):
         thread.start()  # start thread
         thread.join()  # wait for the thread to stop
 
-    def draw_ellipse(self, a, b, start_x, start_z, i, number_of_steps,):
-        self.x = start_x + a*cos(2*pi*i/number_of_steps)
-        self.z = start_z + b*sin(2*pi*i/number_of_steps)
+    def draw_ellipse(self, a, b, start_x, start_z, i, number_of_steps, ):
+        self.x = start_x + a * cos(2 * pi * i / number_of_steps)
+        self.z = start_z + b * sin(2 * pi * i / number_of_steps)
 
         time.sleep(self.time_period)
 
@@ -261,18 +260,36 @@ class Oint(Node):
     # method to interpolate all new positions of joints
     def update_state(self):
         while True:
+
             # change params
-            if self.x != self.newx:
-                self.x = interpolate(self.oldx, self.newx, 0, self.target_time, self.time_passed,
-                                     self.interpolation_method)
+            # X-Y WORKSPACE WITH LIMITS
+            if self.x != self.newx or self.y != self.newy:
+                x = self.x
+                y = self.y
+                if self.x != self.newx:
+                    x = interpolate(self.oldx, self.newx, 0, self.target_time, self.time_passed,
+                                    self.interpolation_method)
+                if self.y != self.newy:
+                    y = interpolate(self.oldy, self.newy, 0, self.target_time, self.time_passed,
+                                    self.interpolation_method)
+                if sqrt(x ** 2 + y ** 2) <= 1.0:
+                    self.x = x
+                    self.y = y
+                else:
+                    self.get_logger().error("CALCULATED LIMIT OF POSITION XY")
+                    self.result = self.check_reached_position()  # remember if targeted accuracy is met (and save errors)
+                    break
 
-            if self.y != self.newy:
-                self.y = interpolate(self.oldy, self.newy, 0, self.target_time, self.time_passed,
-                                     self.interpolation_method)
-
+            # Z WORKSPACE WITH LIMITS
             if self.z != self.newz:
-                self.z = interpolate(self.oldz, self.newz, 0, self.target_time, self.time_passed,
-                                     self.interpolation_method)
+                z = interpolate(self.oldz, self.newz, 0, self.target_time, self.time_passed,
+                                self.interpolation_method)
+                if 0.4 <= z <= 1:
+                    self.z = z
+                else:
+                    self.get_logger().error("CALCULATED LIMIT OF POSITION Z")
+                    self.result = self.check_reached_position()  # remember if targeted accuracy is met (and save errors)
+                    break
 
             if self.roll != self.newroll:
                 self.roll = interpolate(self.oldroll, self.newroll, 0, self.target_time, self.time_passed,
@@ -309,7 +326,6 @@ class Oint(Node):
     def count_abs_error(self):
         self.err_poz = [abs(self.x - self.newx), abs(self.y - self.newy), abs(self.z - self.newz),
                         abs(self.roll - self.newroll), abs(self.pitch - self.newpitch), abs(self.yaw - self.newyaw)]
-
 
 
 # method to count linear interpolated position for given current time

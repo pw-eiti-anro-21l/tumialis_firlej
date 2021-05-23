@@ -81,11 +81,15 @@ class Ikin(Node):
 
     def calculate_joint_state(self):
         # funkcja liczaca kinematyke odwrotna dla aktualnych danych x,y,z
-        # liczenie poz2
         cosVal2 = (self.x ** 2 + self.y ** 2 - self.a2 ** 2 - self.a3 ** 2) / (2 * self.a2 * self.a3)
+        # sprawdzanie ograniczen przestrzeni roboczej
         if cosVal2 > 1 or cosVal2 < -1:
-            self.get_logger().error("IMPOSSIBLE POSITION")  # jesli ta wartosc jest poza wartosciami to niemozliwe jest ustalenie pozycji
+            self.get_logger().error("REACHED LIMIT OF POSITION XY")  # ograniczenie przestrzeni roboczej robota (osie x-y)
+        elif (self.d1 - self.d3 - self.z) <= -0.4 or (self.d1 - self.d3 - self.z) >= 0.1:
+            self.get_logger().error("REACHED LIMIT OF POSITION Z")  # ograniczenie przestrzeni roboczej robota (oś z)
         else:
+
+            # liczenie poz2
             sinVal2 = sqrt(1 - cosVal2 ** 2)  # "+/-   ->   lokiec u gory/dolu"
             self.poz2 = atan2(sinVal2, cosVal2)
 
