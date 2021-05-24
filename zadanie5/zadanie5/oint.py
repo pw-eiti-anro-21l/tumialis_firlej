@@ -65,6 +65,9 @@ class Oint(Node):
         # threading
         self.result = False
 
+        # ellipse limit flag
+        self.limitReached = False
+
         qos_profile = QoSProfile(depth=10)
         self.oint_pub = self.create_publisher(PoseStamped, 'pose_stamped_oint', qos_profile)
         self.path_pub = self.create_publisher(Path, 'path_poses', qos_profile)
@@ -159,10 +162,13 @@ class Oint(Node):
                     self.draw_rectangle(0, 0.5 * request.b, request.a + request.b, request.time)
 
                 if request.figure == "ellipse":
-                    number_of_steps_ = int(request.time / (self.time_period))
+                    number_of_steps_ = int(request.time / self.time_period)
                     for i in range(1, number_of_steps_ + 1):
                         self.draw_ellipse(0.5 * request.a, 0.5 * request.b, request.newx, request.newz, i,
                                           number_of_steps_)
+                        if self.limitReached:
+                            self.limitReached = False
+                            break
 
                 if self.result:
                     response.operation = "Successfully interpolated with " + request.figure + " method! " + \
@@ -190,7 +196,7 @@ class Oint(Node):
         self.newx = self.x + a
         self.newz = self.z + b
 
-        if (a + b <= 0):
+        if a + b <= 0:
             flaga = -1
         else:
             flaga = 1
@@ -208,8 +214,20 @@ class Oint(Node):
         thread.join()  # wait for the thread to stop
 
     def draw_ellipse(self, a, b, start_x, start_z, i, number_of_steps, ):
-        self.x = start_x + a * cos(2 * pi * i / number_of_steps)
-        self.z = start_z + b * sin(2 * pi * i / number_of_steps)
+        x = start_x + a * cos(2 * pi * i / number_of_steps)
+        z = start_z + b * sin(2 * pi * i / number_of_steps)
+
+        if sqrt(x ** 2 + self.y ** 2) <= 1:
+            self.x = x
+        else:
+            self.get_logger().error("CALCULATED LIMIT OF POSITION X")
+            self.limitReached = True
+
+        if 0.4 <= z <= 1:
+            self.z = z
+        else:
+            self.get_logger().error("CALCULATED LIMIT OF POSITION Z")
+            self.limitReached = True
 
         time.sleep(self.time_period)
 
